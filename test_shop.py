@@ -6,10 +6,13 @@ import pytest
 from models import Product, Cart
 
 
-@pytest.fixture
+@pytest.fixture()
 def product_book() -> Product:
-    book = Product("book", 100, "This is a book", 1000)
-    return book
+    return Product("book", 100, "This is a book", 1000)
+
+@pytest.fixture()
+def product_mobile_phone() -> Product:
+    return Product("mobile_phone", 12000, "This is a phone", 50)
 
 @pytest.fixture()
 def cart() -> Cart:
@@ -46,9 +49,32 @@ class TestCart:
 
     def test_add_product(self, product_book, cart):
         cart.add_product(product_book, 50)
+        assert cart.products[product_book] == 50
+
+    def test_add_quantity(self, product_book, cart):
+        cart.add_product(product_book, 100)
+        cart.add_product(product_book, 50)
+        assert cart.products[product_book] == 150
+
+    def test_add_two_products(self, product_book, product_mobile_phone, cart):
+        cart.add_product(product_book, 60)
+        cart.add_product(product_mobile_phone, 10)
+        assert cart.products[product_book] == 60
+        assert cart.products[product_mobile_phone] == 10
+
+    def test_add_product_more_than_available(self, product_book, cart):
+        with pytest.raises(ValueError):
+            cart.add_product(product_book, (product_book.quantity + 10))
+
+    def test_add_zero_quantity(self, product_mobile_phone, cart):
+        with pytest.raises(ValueError):
+            cart.add_product(product_mobile_phone, 0)
 
 
-
+    def test_remove_product(self, product_book, cart):
+        cart.add_product(product_book, 100)
+        cart.remove_product(product_book, 115)
+        assert len(cart.products) == 0
 
 
         var = ("\n"
