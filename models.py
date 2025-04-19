@@ -59,12 +59,11 @@ class Cart:
 
 
     def remove_product(self, product: Product, remove_count=None):
-        if self.products[product] > remove_count > 0:
+        if remove_count is None or remove_count > self.products[product]:
+            self.products.pop(product)
+        elif self.products[product] > remove_count > 0:
             if product in self.products:
                 self.products[product] -= remove_count
-        elif remove_count > self.products[product] or remove_count is None:
-            self.products.pop(product)
-
         """
         Метод удаления продукта из корзины.
         Если remove_count не передан, то удаляется вся позиция

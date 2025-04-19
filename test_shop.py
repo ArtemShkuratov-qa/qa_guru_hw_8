@@ -72,9 +72,30 @@ class TestCart:
 
 
     def test_remove_product(self, product_book, cart):
-        cart.add_product(product_book, 100)
-        cart.remove_product(product_book, 115)
+        quantity_to_purchase = 100
+        quantity_to_be_removed = 50
+        cart.add_product(product_book, quantity_to_purchase)
+        cart.remove_product(product_book, quantity_to_be_removed)
+        assert cart.products[product_book] == quantity_to_purchase - quantity_to_be_removed
+
+    def test_remove_product_more_than_available(self, product_book, cart):
+        quantity_to_purchase = 100
+        quantity_to_be_removed = 115
+        cart.add_product(product_book, quantity_to_purchase)
+        cart.remove_product(product_book, quantity_to_be_removed)
         assert len(cart.products) == 0
+
+    def test_remove_product_with_none(self, product_book, cart):
+        cart.add_product(product_book, 150)
+        cart.remove_product(product_book)
+        assert len(cart.products) == 0
+
+    def test_removing_one_of_the_products(self, product_book, product_mobile_phone, cart):
+        cart.add_product(product_book, 200)
+        cart.add_product(product_mobile_phone, 15)
+        cart.remove_product(product_book, 100)
+        assert cart.products[product_book] == 100
+        assert cart.products[product_mobile_phone] == 15
 
 
         var = ("\n"
