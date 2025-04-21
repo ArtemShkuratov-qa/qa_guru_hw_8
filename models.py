@@ -17,10 +17,7 @@ class Product:
         self.quantity = quantity
 
     def check_quantity(self, quantity) -> bool:
-        if self.quantity >= quantity:
-            return True
-        else:
-            return False
+        return self.quantity >= quantity
 
 
     def buy(self, quantity):
@@ -28,7 +25,6 @@ class Product:
             raise ValueError('Количество продукта должно быть больше 0!')
         elif self.check_quantity(quantity):
             self.quantity -= quantity
-            return True
         else:
             raise ValueError('Недостаточное количество данного продукта!')
 
@@ -50,25 +46,30 @@ class Cart:
         self.products = {}
 
     def add_product(self, product: Product, buy_count=1):
-        if product.check_quantity(buy_count) and buy_count > 0:
-            if product in self.products:
-                self.products[product] += buy_count
-            else:
-                self.products[product] = buy_count
-        elif buy_count == 0:
+        if buy_count > 0:
+            if product.check_quantity(buy_count):
+                if product in self.products:
+                    self.products[product] += buy_count
+                else:
+                    self.products[product] = buy_count
+            elif not product.check_quantity(buy_count):
+                raise ValueError('Недостаточное количество данного продукта!')
+        elif buy_count <= 0:
             raise ValueError('Количество продукта должно быть больше 0!')
-        else:
-            raise ValueError('Недостаточное количество данного продукта!')
 
 
     def remove_product(self, product: Product, remove_count=None):
-        if remove_count == 0:
-            raise ValueError('Количество продукта должно быть больше 0!')
-        elif remove_count is None or remove_count >= self.products[product]:
-            self.products.pop(product)
-        elif self.products[product] > remove_count > 0:
+        if remove_count is None or remove_count > 0:
             if product in self.products:
-                self.products[product] -= remove_count
+                if remove_count is None or self.products[product] <= remove_count:
+                    self.products.pop(product)
+                elif self.products[product] > remove_count:
+                    self.products[product] -= remove_count
+            elif product not in self.products:
+                raise ValueError('Данного продукта нет в корзине!')
+        elif remove_count <= 0:
+            raise ValueError('Количество продукта должно быть больше 0!')
+
         """
         Метод удаления продукта из корзины.
         Если remove_count не передан, то удаляется вся позиция
@@ -88,7 +89,13 @@ class Cart:
 
 
     def buy(self):
-        for product in self.products.keys():
-            product.buy(self.products.get(product))
+        if self.products:
+            for product in self.products.keys():
+                if product.check_quantity(self.products.get(product)):
+                    product.buy(self.products.get(product))
+                elif not product.check_quantity(self.products.get(product)):
+                    raise ValueError('Недостаточное количество данного продукта!')
+            self.clear()
+        elif not self.products:
+            raise ValueError('Товары в корзине отсутствуют!')
 
-        self.clear()

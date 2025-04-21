@@ -145,9 +145,9 @@ class TestCart:
         assert not cart.products
 
 
-    def test_clear_cart_with_two_products(self, product_book, cart):
+    def test_clear_cart_with_two_products(self, product_book, product_mobile_phone, cart):
         cart.add_product(product_book, 100)
-
+        cart.add_product(product_mobile_phone, 10)
         cart.clear()
 
         assert not cart.products
@@ -225,5 +225,9 @@ class TestCart:
     def test_buy_product_more_than_available(self, product_book, cart):
         cart.add_product(product_book, product_book.quantity)
         cart.products[product_book] += 1
+        with pytest.raises(ValueError):
+            cart.buy()
+
+    def test_buy_empty_cart(self, cart):
         with pytest.raises(ValueError):
             cart.buy()
